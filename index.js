@@ -8,7 +8,7 @@ me = function(gulp, processArgv) {
   gulp.argv = processArgv;
 
   gulp.task = function(name, dep, fn) {
-    var fnArgs, argv, injections, newFn;
+    var fnArgs, argv, injections, newFn, callbackIndex;
 
     if (!fn && typeof dep === 'function') {
       fn = dep;
@@ -20,10 +20,17 @@ me = function(gulp, processArgv) {
     fnArgs = retrieveArguments(fn);
     argv = me.getParams(gulp.argv);
     injections = me.getInjections(fnArgs, argv);
+    callbackIndex = me.getCallbackIndex(fnArgs);
 
-    newFn = function() {
-      return fn.apply(gulp, injections);
-    };
+    if(callbackIndex >= 0) {
+      newFn = function(callback) {
+        return fn.apply(gulp, injections.splice(callbackIndex, 0, callback));
+      }
+    } else {
+      newFn = function() {
+        return fn.apply(gulp, injections);
+      };
+    }
 
     return taskFn.call(gulp, name, dep, newFn);
   };
@@ -38,6 +45,15 @@ me.getParams = function(argv) {
   }
   return argv.slice(sliceIndex);
 };
+
+me.getCallbackIndex = function(fnArgs) {
+  for (var i = 0; i < fnArgs.length; i++) {
+    if (fnArgs[i] === 'callback') {
+      return i;
+    }
+  }
+  return -1;
+}
 
 me.getInjections = function(fnArgs, keys) {
   var injections = [];
