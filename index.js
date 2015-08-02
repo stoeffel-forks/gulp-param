@@ -24,7 +24,8 @@ me = function(gulp, processArgv) {
 
     if(callbackIndex >= 0) {
       newFn = function(callback) {
-        return fn.apply(gulp, injections.splice(callbackIndex, 0, callback));
+        injections.splice(callbackIndex, 0, callback);
+        return fn.apply(gulp, injections);
       }
     } else {
       newFn = function() {

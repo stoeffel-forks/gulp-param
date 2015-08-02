@@ -2,14 +2,7 @@ var callbackFunction = function() { return 'callback'; };
 
 var mockedGulp = {
     task: function(name, dep, fn) {
-      console.log(fn);
-      if (!dep) {
-        fn.call(gulp, callbackFunction);
-        // fn.call(gulp, name, fn);
-      } else {
-        fn.call(gulp, callbackFunction);
-        // fn.call(gulp, name, dep, fn);
-      }
+      fn.call(gulp, callbackFunction);
     }
   },
   gulpParam = require('./index.js'),
@@ -89,7 +82,7 @@ describe('gulp-param', function() {
     it('should pass the callback to the task', function(done) {
       gulp.argv = ['', '', ''];
       gulp.task('test', function(callback) {
-        assert.is(callback, Function);
+        assert.equal(typeof callback, 'function');
         done();
       });
     });
@@ -97,7 +90,7 @@ describe('gulp-param', function() {
     it('should pass the callback to the task with params after', function(done) {
       gulp.argv = ['', '', '', '--param1', 'value1', '--param2', 'value2'];
       gulp.task('test', function(callback, param1, param2) {
-        assert.is(callback, Function);
+        assert.equal(typeof callback, 'function');
         assert.equal(param1, 'value1');
         assert.equal(param2, 'value2');
         done();
@@ -107,7 +100,7 @@ describe('gulp-param', function() {
     it('should pass the callback to the task with params before', function(done) {
       gulp.argv = ['', '', '', '--param1', 'value1', '--param2', 'value2'];
       gulp.task('test', function(param1, param2, callback) {
-        assert.is(callback, Function);
+        assert.equal(typeof callback, 'function');
         assert.equal(param1, 'value1');
         assert.equal(param2, 'value2');
         done();
